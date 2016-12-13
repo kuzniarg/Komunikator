@@ -1,6 +1,6 @@
-package Klient;
+package Server;
 
-import Klient.Controller.LoginController;
+import Server.Controller.StartServerController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -9,7 +9,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
-public class MainApp extends Application {
+public class ServerMain extends Application {
 
     private Stage primaryStage;
 
@@ -17,34 +17,28 @@ public class MainApp extends Application {
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
 
-        initWindowLogin();
+        initWindowStartServer();
     }
 
-    private void initWindowLogin() {
+    private void initWindowStartServer() {
         try {
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApp.class.getResource("View/Login.fxml"));
+            loader.setLocation(ServerMain.class.getResource("View/StartServer.fxml"));
             Pane windowLogin = loader.load();
 
             Scene scene = new Scene(windowLogin);
             primaryStage.setScene(scene);
-            primaryStage.setTitle("Login");
+            primaryStage.setTitle("Server");
             primaryStage.setResizable(false);
             primaryStage.show();
 
-            LoginController controller = loader.getController();
-            controller.setMainApp(this);
+            StartServerController controller = loader.getController();
+            controller.run();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
     public static void main(String[] args) {
         launch(args);
     }
-
-
-
-
-
 }

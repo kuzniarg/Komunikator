@@ -6,16 +6,14 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 
-
 <Pane xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="Klient.Controller.LoginController">
+      fx:controller="Server.Controller.StartServerController">
    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="220.0" prefWidth="210.0">
-      <TextField fx:id="TextIP" layoutX="24.0" layoutY="31.0" prefHeight="25.0" prefWidth="160.0"/>
+      <TextField fx:id="TextIP" disable="true" layoutX="24.0" layoutY="31.0" prefHeight="25.0" prefWidth="160.0"/>
       <Label layoutX="29.0" layoutY="14.0" text="Adres IP serwera"/>
-      <TextField fx:id="TextLogin" layoutX="24.0" layoutY="120.0" prefHeight="25.0" prefWidth="160.0"/>
-      <Label layoutX="29.0" layoutY="103.0" text="Nazwa użytkownika"/>
-      <Button fx:id="ButtonList" layoutX="40.0" layoutY="64.0" mnemonicParsing="false" text="Wybierz serwer z listy"/>
-      <Button fx:id="ButtonConnect" layoutX="80.0" layoutY="159.0" mnemonicParsing="false" text="Połącz"/>
+      <TextField fx:id="TextPort" layoutX="24.0" layoutY="85.0" prefHeight="25.0" prefWidth="160.0" text="1500"/>
+      <Label layoutX="29.0" layoutY="68.0" text="Port"/>
+      <Button fx:id="ButtonStart" layoutX="80.0" layoutY="159.0" mnemonicParsing="false" text="Start"/>
       <Label fx:id="LabelStatus" alignment="CENTER" contentDisplay="CENTER" layoutX="27.0" layoutY="189.0"
              minWidth="10.0" prefHeight="17.0" prefWidth="160.0"/>
    </AnchorPane>
