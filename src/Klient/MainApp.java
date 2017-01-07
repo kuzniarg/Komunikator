@@ -40,7 +40,7 @@ public class MainApp extends Application {
             primaryStage.show();
 
             LoginController controller = loader.getController();
-            controller.setMainApp(this);
+            controller.setMainApp();
         } catch (IOException e) {
             e.printStackTrace();
         }

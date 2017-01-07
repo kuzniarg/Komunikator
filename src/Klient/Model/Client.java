@@ -1,5 +1,7 @@
 package Klient.Model;
 
+import javafx.scene.control.TreeView;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,11 +14,14 @@ public class Client {
     private Socket socket;
     private String server, username;
     private int port;
+    private TreeView<String> TreeClient;
+    private ListenFromServer LFS;
 
-    public Client(String server, int port, String username) {
+    public Client(String server, int port, String username, TreeView<String> TreeClient) {
         this.server = server;
         this.port = port;
         this.username = username;
+        this.TreeClient = TreeClient;
     }
 
     public boolean start() {
@@ -37,7 +42,9 @@ public class Client {
             return false;
         }
 
-        new ListenFromServer(sInput).start();
+        LFS = new ListenFromServer(sInput, TreeClient);
+        LFS.start();
+
         try {
             sOutput.writeObject(username);
         } catch (IOException eIO) {
@@ -66,8 +73,13 @@ public class Client {
             if (sInput != null) sInput.close();
             if (sOutput != null) sOutput.close();
             if (socket != null) socket.close();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
+    }
+
+    public void setTreeClient(TreeView<String> TreeClient) {
+        this.TreeClient = TreeClient;
+        LFS.setTreeClient(TreeClient);
     }
 }
 

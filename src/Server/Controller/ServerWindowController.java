@@ -5,10 +5,7 @@ import Server.Model.Server;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -26,7 +23,7 @@ public class ServerWindowController {
     @FXML
     private TextArea ServerLog;
     @FXML
-    private TreeView TreeServer;
+    private TreeView<String> TreeServer;
 
     private SimpleDateFormat sdf;
     private boolean startClick = true;
@@ -62,7 +59,7 @@ public class ServerWindowController {
                 printLog("Zły format portu");
                 return;
             }
-            server = new Server(port);
+            server = new Server(port, TreeServer);
             serverThread = new Thread(server);
             serverThread.start();
             printLog("Start serwera");
@@ -87,13 +84,27 @@ public class ServerWindowController {
                 System.exit(0);
             }
         });
+
         ButtonStart.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 start(TextPort.getText());
             }
         });
-        this.ServerLog.setWrapText(true);
 
+        this.ServerLog.setWrapText(true);
+        loadCanals();
+    }
+
+    private void loadCanals() {
+        TreeItem<String> rootItem = new TreeItem<>("Serwer");
+        rootItem.setExpanded(true);
+        rootItem.getChildren().add(new TreeItem<>("Poczekalnia"));
+        rootItem.getChildren().get(0).setExpanded(true);
+        for (int i = 2; i < 8; i++) {
+            rootItem.getChildren().add(new TreeItem<>("Kanal " + i));
+            rootItem.getChildren().get(i - 1).setExpanded(true);
+        }
+        this.TreeServer.setRoot(rootItem);
     }
 }

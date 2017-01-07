@@ -1,5 +1,7 @@
 package Server.Model;
 
+import javafx.scene.control.TreeView;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,15 +11,28 @@ import java.util.Date;
 
 public class Server implements Runnable {
     private int port;
-    protected ArrayList<ClientThread> clientList;
+    private TreeView<String> TreeServer;
+    private ArrayList<Canal> canalList;
+    private ArrayList<ClientThread> clientList;
     private SimpleDateFormat sdf;
     private boolean keepGoing;
     private int uniqueId;
 
-    public Server(int port) {
+    public Server(int port, TreeView<String> TreeServer) {
         this.port = port;
+        this.TreeServer = TreeServer;
+        makeCanals();
         sdf = new SimpleDateFormat("HH:mm:ss");
         clientList = new ArrayList<ClientThread>();
+    }
+
+    private void makeCanals() {
+        canalList = new ArrayList<Canal>();
+        int n = TreeServer.getRoot().getChildren().size();
+        for (int i = 0; i < n; i++) {
+            Canal tmp = new Canal(TreeServer.getRoot().getChildren().get(i).getValue(), i - 1);
+            canalList.add(tmp);
+        }
     }
 
     public void run() {
@@ -31,10 +46,9 @@ public class Server implements Runnable {
                 if (!keepGoing)
                     break;
 
-                ClientThread t = new ClientThread(socket, ++uniqueId, clientList);
+                ClientThread t = new ClientThread(socket, String.valueOf(++uniqueId), clientList, TreeServer, canalList);
                 clientList.add(t);
                 t.start();
-                Thread.sleep(10);
             }
 
             try {
@@ -53,9 +67,6 @@ public class Server implements Runnable {
         } catch (IOException e) {
             String msg = "Blad podczas tworzenia nowego ServerSocket: " + e;
             display(msg);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            display("Blad oczekiwania (sleep)");
         }
     }
 

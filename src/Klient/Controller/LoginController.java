@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -22,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class LoginController {
-    private MainApp mainApp;
     @FXML
     private TextArea ClientLog;
     @FXML
@@ -38,9 +38,8 @@ public class LoginController {
     private SimpleDateFormat sdf;
 
 
-    public void setMainApp(MainApp mainApp) {
+    public void setMainApp() {
         ini();
-        this.mainApp = mainApp;
         sdf = new SimpleDateFormat("HH:mm:ss");
         PrintStream printStream = new PrintStream(new CustomOutputStream(ClientLog));
         System.setOut(printStream);
@@ -65,11 +64,12 @@ public class LoginController {
 
         printLog("Laczenie z " + IP);
 
-        Client client = new Client(IP, port, Login);
+        TreeView<String> TreeClient = new TreeView<>();
+
+        Client client = new Client(IP, port, Login, TreeClient);
         if (client.start()) {
             connectOK(e, client);
-        } else ;
-
+        }
     }
 
     private void printLog(String msg) {
@@ -85,7 +85,7 @@ public class LoginController {
 
             Stage stage = new Stage();
             stage.setScene(new Scene(komunikator));
-            stage.setTitle("Komunikator");
+            stage.setTitle("Komunikator (" + TextIP.getText() + ") " + TextLogin.getText());
             stage.initModality(Modality.WINDOW_MODAL);
             stage.show();
 
