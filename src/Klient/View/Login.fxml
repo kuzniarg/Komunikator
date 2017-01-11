@@ -6,14 +6,14 @@
 <Pane xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Klient.Controller.LoginController">
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="330.0" prefWidth="250.0">
-        <TextField fx:id="TextIP" layoutX="44.0" layoutY="31.0" prefHeight="25.0" prefWidth="160.0" text="127.0.0.1"/>
+        <TextField fx:id="TextIP" layoutX="44.0" layoutY="31.0" prefHeight="25.0" prefWidth="160.0"/>
         <Label layoutX="49.0" layoutY="14.0" text="Adres IP serwera"/>
-        <TextField fx:id="TextLogin" layoutX="46.0" layoutY="160.0" prefHeight="25.0" prefWidth="160.0" text="Grzechu"/>
+        <TextField fx:id="TextLogin" layoutX="46.0" layoutY="160.0" prefHeight="25.0" prefWidth="160.0"/>
         <Label layoutX="51.0" layoutY="143.0" text="Nazwa użytkownika"/>
         <Button fx:id="ButtonList" layoutX="59.0" layoutY="105.0" mnemonicParsing="false"
                 text="Wybierz serwer z listy"/>
         <Button fx:id="ButtonConnect" layoutX="102.0" layoutY="199.0" mnemonicParsing="false" text="Połącz"/>
-        <TextField fx:id="TextPort" layoutX="44.0" layoutY="73.0" prefHeight="25.0" prefWidth="160.0" text="1500"/>
+        <TextField fx:id="TextPort" layoutX="44.0" layoutY="73.0" prefHeight="25.0" prefWidth="160.0"/>
         <Label layoutX="49.0" layoutY="56.0" text="Port serwera"/>
         <TextArea fx:id="ClientLog" layoutX="5.0" layoutY="236.0" prefHeight="93.0" prefWidth="242.0"/>
    </AnchorPane>

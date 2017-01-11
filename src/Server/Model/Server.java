@@ -14,25 +14,18 @@ public class Server implements Runnable {
     private TreeView<String> TreeServer;
     private ArrayList<Canal> canalList;
     private ArrayList<ClientThread> clientList;
+    private ArrayList<UserKey> userList;
     private SimpleDateFormat sdf;
     private boolean keepGoing;
     private int uniqueId;
 
-    public Server(int port, TreeView<String> TreeServer) {
+    public Server(int port, TreeView<String> TreeServer, ArrayList<Canal> canalList, ArrayList<UserKey> userList) {
         this.port = port;
         this.TreeServer = TreeServer;
-        makeCanals();
+        this.canalList = canalList;
+        this.userList = userList;
         sdf = new SimpleDateFormat("HH:mm:ss");
         clientList = new ArrayList<ClientThread>();
-    }
-
-    private void makeCanals() {
-        canalList = new ArrayList<Canal>();
-        int n = TreeServer.getRoot().getChildren().size();
-        for (int i = 0; i < n; i++) {
-            Canal tmp = new Canal(TreeServer.getRoot().getChildren().get(i).getValue(), i - 1);
-            canalList.add(tmp);
-        }
     }
 
     public void run() {
@@ -47,8 +40,13 @@ public class Server implements Runnable {
                     break;
 
                 ClientThread t = new ClientThread(socket, String.valueOf(++uniqueId), clientList, TreeServer, canalList);
-                clientList.add(t);
-                t.start();
+                String publicKey = t.getPublicKey();
+                int power = isUserRegistered(publicKey);
+                if (power > -1) {
+                    t.setClientPower(power);
+                    clientList.add(t);
+                    t.start();
+                }
             }
 
             try {
@@ -68,6 +66,15 @@ public class Server implements Runnable {
             String msg = "Blad podczas tworzenia nowego ServerSocket: " + e;
             display(msg);
         }
+    }
+
+    private int isUserRegistered(String publicKey) {
+        for (int i = 0; i < userList.size(); i++) {
+            if (userList.get(i).getPublicKey().equals(publicKey)) {
+                return userList.get(i).getPower();
+            }
+        }
+        return 0;
     }
 
     private void display(String msg) {

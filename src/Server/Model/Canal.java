@@ -7,30 +7,30 @@ public class Canal {
     private int power;
     private ArrayList<User> users;
 
-    Canal(String name, int power) {
+    public Canal(String name, int power) {
         this.name = name;
         this.power = power;
         this.users = new ArrayList<>();
     }
 
-    void addUser(String id, String name) {
+    public void addUser(String id, String name) {
         users.add(new User(id, name));
     }
 
-    void removeUser(String id, String name) {
+    public void removeUser(String id, String name) {
         User tmp = new User(id, name);
         int i = 0;
-        while (!tmp.equals(users.get(i)) && i < users.size()) {
+        while (i < users.size() && !tmp.equals(users.get(i))) {
             i++;
         }
-        users.remove(i);
+        if (!users.isEmpty()) users.remove(i);
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 
-    int getPower() {
+    public int getPower() {
         return power;
     }
 
@@ -39,5 +39,9 @@ public class Canal {
         StringBuilder tmp = new StringBuilder(name + "|" + power + "|");
         for (User user : users) tmp.append(user.getName()).append(";");
         return tmp.toString();
+    }
+
+    public String toStringWithoutUsers() {
+        return name + ";" + power;
     }
 }

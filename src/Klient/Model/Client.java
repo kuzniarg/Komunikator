@@ -16,12 +16,14 @@ public class Client {
     private int port;
     private TreeView<String> TreeClient;
     private ListenFromServer LFS;
+    private RSA rsa;
 
-    public Client(String server, int port, String username, TreeView<String> TreeClient) {
+    public Client(String server, int port, String username, TreeView<String> TreeClient, RSA rsa) {
         this.server = server;
         this.port = port;
         this.username = username;
         this.TreeClient = TreeClient;
+        this.rsa = rsa;
     }
 
     public boolean start() {
@@ -42,17 +44,34 @@ public class Client {
             return false;
         }
 
-        LFS = new ListenFromServer(sInput, TreeClient);
-        LFS.start();
-
         try {
             sOutput.writeObject(username);
+            sOutput.writeObject(rsa.getN().toString());
+            sOutput.writeObject(rsa.getE().toString());
         } catch (IOException eIO) {
             display("Blad podczas logowania: " + eIO);
             disconnect();
             return false;
         }
-        return true;
+
+        try {
+            ChatMessage cm = (ChatMessage) sInput.readObject();
+            String answer = rsa.decrypt(cm.getMessage());
+            sOutput.writeObject(new ChatMessage(ChatMessage.AUTHORIZATION, answer));
+            cm = (ChatMessage) sInput.readObject();
+            if (!cm.getMessage().equals("PASS")) {
+                display("Blad autoryzacji");
+                return false;
+            } else {
+                LFS = new ListenFromServer(sInput, TreeClient);
+                LFS.start();
+                return true;
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        display("Blad autoryzacji");
+        return false;
     }
 
     private void display(String msg) {

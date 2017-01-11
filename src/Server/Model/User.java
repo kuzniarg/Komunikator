@@ -5,12 +5,12 @@ public class User {
     private String ID;
     private String name;
 
-    User(String ID, String name) {
+    public User(String ID, String name) {
         this.ID = ID;
         this.name = name;
     }
 
-    String getName() {
+    public String getName() {
         return name;
     }
 

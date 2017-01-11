@@ -68,6 +68,8 @@ class ListenFromServer extends Thread {
 
                 message = message.substring(end + 1);
                 end = message.indexOf(',');
+                if (end < 0)
+                    end = message.indexOf(']');
             }
             Platform.runLater(new Runnable() {
                 @Override

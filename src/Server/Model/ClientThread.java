@@ -1,13 +1,17 @@
 package Server.Model;
 
 import Klient.Model.ChatMessage;
+import Klient.Model.RSA;
+import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.math.BigInteger;
 import java.net.Socket;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +28,8 @@ class ClientThread extends Thread {
     private ArrayList<Canal> canalList;
     private ArrayList<ClientThread> clientList;
     private String username;
+    private String publicKeyN;
+    private String publicKeyE;
     private SimpleDateFormat sdf;
     private TreeItem<String> user;
 
@@ -38,8 +44,10 @@ class ClientThread extends Thread {
             sOutput = new ObjectOutputStream(socket.getOutputStream());
             sInput = new ObjectInputStream(socket.getInputStream());
             username = (String) sInput.readObject();
+            publicKeyN = (String) sInput.readObject();
+            publicKeyE = (String) sInput.readObject();
             sdf = new SimpleDateFormat("HH:mm:ss");
-            display(username + " polaczyl sie z serwerem");
+            display(username + " laczy sie z serwerem");
         } catch (IOException e) {
             display("Blad podczas tworzenia strumieni wejscia/wyjscia: " + e);
         } catch (ClassNotFoundException ignored) {
@@ -48,51 +56,79 @@ class ClientThread extends Thread {
     }
 
     private void display(String msg) {
-        String time = sdf.format(new Date()) + " " + msg + "\n";
-        System.out.print(time);
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                String time = sdf.format(new Date()) + " " + msg + "\n";
+                System.out.print(time);
+            }
+        });
     }
 
     public void run() {
-        addClient(0);
-        boolean keepGoing = true;
-        while (keepGoing) {
-            ChatMessage cm;
-            try {
-                cm = (ChatMessage) sInput.readObject();
-            } catch (IOException e) {
-                display(username + " blad podczas odczytu ze strumienia: " + e);
-                break;
-            } catch (ClassNotFoundException e2) {
-                break;
-            }
+        if (authorization()) {
+            addClient(0);
+            boolean keepGoing = true;
+            while (keepGoing) {
+                ChatMessage cm;
+                try {
+                    cm = (ChatMessage) sInput.readObject();
+                } catch (IOException e) {
+                    display(username + " blad podczas odczytu ze strumienia: " + e);
+                    break;
+                } catch (ClassNotFoundException e2) {
+                    break;
+                }
 
-            String message = cm.getMessage();
-            switch (cm.getType()) {
-                case ChatMessage.MESSAGE:
-                    broadcast(message);
-                    break;
-                case ChatMessage.LOGOUT:
-                    display(username + " wyslal zadanie przerwania polaczenia");
-                    keepGoing = false;
-                    break;
-                case ChatMessage.CHANGE:
-                    int newCanal = findCanal(message);
-                    if (canalList.get(newCanal).getPower() <= clientPower)
-                        changeCanal(newCanal);
-                    else writeMsg(new ChatMessage(1, "Odmowa dostepu do kanalu " + canalList.get(newCanal).getName()));
-                    break;
+                String message = cm.getMessage();
+                switch (cm.getType()) {
+                    case ChatMessage.MESSAGE:
+                        broadcast(message);
+                        break;
+                    case ChatMessage.LOGOUT:
+                        display(username + " wyslal zadanie przerwania polaczenia");
+                        keepGoing = false;
+                        break;
+                    case ChatMessage.CHANGE:
+                        int newCanal = findCanal(message);
+                        if (newCanal == -1 || newCanal == canal)
+                            break;
+                        if (canalList.get(newCanal).getPower() <= clientPower)
+                            changeCanal(newCanal);
+                        else
+                            writeMsg(new ChatMessage(1, "Odmowa dostepu do kanalu " + canalList.get(newCanal).getName()));
+                        break;
+                }
             }
         }
         remove();
         close();
     }
 
+    private boolean authorization() {
+        RSA rsa = new RSA(new BigInteger(publicKeyN), new BigInteger(publicKeyE));
+        SecureRandom random = new SecureRandom();
+        String code = new BigInteger(130, random).toString(32);
+        String msg = rsa.encrypt(code);
+        try {
+            sOutput.writeObject(new ChatMessage(ChatMessage.AUTHORIZATION, msg));
+            ChatMessage cm = (ChatMessage) sInput.readObject();
+            if (cm.getMessage().equals(code)) {
+                sOutput.writeObject(new ChatMessage(ChatMessage.AUTHORIZATION, "PASS"));
+                return true;
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private int findCanal(String message) {
-        System.out.println(canalList);
         int index = 0;
         while (index < canalList.size() && !canalList.get(index).getName().equals(message))
             index++;
-        System.out.println(canalList.get(index));
+        if (index == canalList.size())
+            return -1;
         return index;
     }
 
@@ -178,12 +214,8 @@ class ClientThread extends Thread {
         removeClient();
     }
 
-    public String getClientID() {
-        return clientID;
-    }
-
-    public int getClientPower() {
-        return clientPower;
+    public String getPublicKey() {
+        return publicKeyE;
     }
 
     public void setClientPower(int clientPower) {
@@ -192,13 +224,5 @@ class ClientThread extends Thread {
 
     public int getCanal() {
         return canal;
-    }
-
-    public void setCanal(int canal) {
-        this.canal = canal;
-    }
-
-    public String getUsername() {
-        return username;
     }
 }

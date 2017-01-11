@@ -2,12 +2,10 @@ package Klient;
 
 import Klient.Controller.LoginController;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 
@@ -30,17 +28,12 @@ public class MainApp extends Application {
 
             Scene scene = new Scene(windowLogin);
             primaryStage.setScene(scene);
-            primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-                public void handle(WindowEvent event) {
-                    System.exit(0);
-                }
-            });
             primaryStage.setTitle("Login");
             primaryStage.setResizable(false);
             primaryStage.show();
 
             LoginController controller = loader.getController();
-            controller.setMainApp();
+            controller.setMainApp(primaryStage);
         } catch (IOException e) {
             e.printStackTrace();
         }
