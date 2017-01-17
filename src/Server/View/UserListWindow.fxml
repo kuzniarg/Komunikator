@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<Pane xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Server.Controller.UserListWindowController">
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="397.0" prefWidth="500.0">
+        <children>
+            <TableView fx:id="tableUsers" layoutX="10.0" layoutY="10.0" prefHeight="309.0" prefWidth="480.0"/>
+            <Button fx:id="buttonZapisz" layoutX="281.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0"
+                    prefWidth="80.0" text="Zapisz" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="139.0"/>
+            <Button fx:id="buttonPrzywroc" layoutX="414.0" layoutY="354.0" mnemonicParsing="false" prefHeight="25.0"
+                    prefWidth="80.0" text="Przywróć" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0"/>
+            <Pane layoutX="12.0" layoutY="325.0" prefHeight="25.0" prefWidth="480.0">
+                <children>
+                    <TextField fx:id="textName" text="Nazwa"/>
+                    <TextField fx:id="textKey" layoutX="166.0" text="Klucz publiczny"/>
+                    <TextField fx:id="textPower" layoutX="331.0" text="Poziom uprawnień"/>
+                </children>
+            </Pane>
+            <Button fx:id="buttonDodaj" layoutX="12.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0"
+                    prefWidth="80.0" text="Dodaj"/>
+            <Button fx:id="buttonUsun" layoutX="150.0" layoutY="362.0" mnemonicParsing="false" prefHeight="25.0"
+                    prefWidth="80.0" text="Usuń"/>
+        </children>
+    </AnchorPane>
+</Pane>

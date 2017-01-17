@@ -22,4 +22,8 @@ public class User {
         User that = (User) other;
         return this.ID.equals(that.ID);
     }
+
+    public String getID() {
+        return ID;
+    }
 }

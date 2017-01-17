@@ -2,30 +2,13 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.Pane?>
-<Pane prefHeight="300.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1"
+<Pane prefHeight="300.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Klient.Controller.KomunikatorController">
-    <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="600.0">
-        <Menu mnemonicParsing="false" text="File">
-            <items>
-                <MenuItem mnemonicParsing="false" text="Close"/>
-            </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Edit">
-            <items>
-                <MenuItem mnemonicParsing="false" text="Delete"/>
-            </items>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Help">
-            <items>
-                <MenuItem mnemonicParsing="false" text="About"/>
-            </items>
-        </Menu>
-    </MenuBar>
-    <TextField fx:id="TextMsg" layoutX="14.0" layoutY="261.0" prefHeight="25.0" prefWidth="275.0"/>
+    <TextField fx:id="TextMsg" layoutX="6.0" layoutY="261.0" prefHeight="25.0" prefWidth="283.0"/>
     <Button fx:id="ButtonSend" layoutX="288.0" layoutY="261.0" mnemonicParsing="false" prefHeight="25.0"
             prefWidth="61.0" text="Wyslij"/>
-    <TextArea fx:id="ChatArea" layoutX="14.0" layoutY="49.0" prefHeight="206.0" prefWidth="334.0"/>
-    <Label layoutX="363.0" layoutY="32.0" text="Kanały i użytkownicy"/>
-    <TreeView fx:id="TreeClient" layoutX="358.0" layoutY="49.0" prefHeight="238.0" prefWidth="237.0"/>
-    <Label layoutX="14.0" layoutY="32.0" text="Czat"/>
+    <TextArea fx:id="ChatArea" layoutX="6.0" layoutY="24.0" prefHeight="231.0" prefWidth="342.0"/>
+    <Label layoutX="363.0" layoutY="6.0" text="Kanały i użytkownicy"/>
+    <TreeView fx:id="TreeClient" layoutX="358.0" layoutY="25.0" prefHeight="262.0" prefWidth="237.0"/>
+    <Label layoutX="14.0" layoutY="6.0" text="Czat"/>
 </Pane>

@@ -6,6 +6,8 @@ import javafx.scene.control.TreeView;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 class ListenFromServer extends Thread {
 
@@ -13,10 +15,12 @@ class ListenFromServer extends Thread {
     private TreeView<String> TreeClient;
     private String lastCanals;
     private boolean isTreeReady = false;
+    private Client client;
 
-    ListenFromServer(ObjectInputStream sInput, TreeView<String> TreeClient) {
+    ListenFromServer(ObjectInputStream sInput, TreeView<String> TreeClient, Client client) {
         this.sInput = sInput;
         this.TreeClient = TreeClient;
+        this.client = client;
     }
 
     public void run() {
@@ -30,9 +34,14 @@ class ListenFromServer extends Thread {
                     case ChatMessage.CANALS:
                         refreshCanals(msg.getMessage());
                         break;
+                    case ChatMessage.KICK:
+                        System.out.println(msg.getMessage());
+                        client.disconnect();
+                        return;
                 }
             } catch (IOException e) {
-                System.out.println("Serwer zamknal polaczenie: " + e);
+                SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+                System.out.println(sdf.format(new Date()) + " Serwer zamknal polaczenie");
                 break;
             } catch (ClassNotFoundException ignored) {
             }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<Pane xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Server.Controller.UserWindowController">
+    <children>
+        <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                    prefHeight="239.0" prefWidth="220.0">
+            <children>
+                <Label layoutX="42.0" layoutY="14.0" text="Edycja użytkownika" AnchorPane.topAnchor="14.0">
+                    <font>
+                        <Font size="16.0"/>
+                    </font>
+                </Label>
+                <Button fx:id="buttonOK" layoutX="16.0" layoutY="121.0" mnemonicParsing="false" text="Zatwierdź"
+                        AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="20.0"/>
+                <Button fx:id="buttonAbort" layoutX="154.0" layoutY="121.0" mnemonicParsing="false" text="Anuluj"
+                        AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="20.0"/>
+                <Label layoutX="14.0" layoutY="44.0" text="Nazwa" AnchorPane.leftAnchor="15.0"/>
+                <Label layoutX="15.0" layoutY="73.0" prefHeight="17.0" prefWidth="36.0" text="Moc"
+                       AnchorPane.leftAnchor="15.0"/>
+                <Slider fx:id="sliderPower" layoutX="54.0" layoutY="73.0" majorTickUnit="2.0" max="10.0"
+                        minorTickCount="1" prefHeight="14.0" prefWidth="150.0" showTickLabels="true"
+                        showTickMarks="true" snapToTicks="true" value="5.0" AnchorPane.rightAnchor="15.0"/>
+                <CheckBox fx:id="checkBoxBaza" layoutX="23.0" layoutY="131.0" mnemonicParsing="false" prefHeight="25.0"
+                          prefWidth="174.0" text="Użytkownik zapisany w bazie"/>
+                <Label fx:id="labelLogin" layoutX="65.0" layoutY="43.0" prefHeight="20.0" prefWidth="150.0"
+                       text="login">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
+                <Label layoutX="15.0" layoutY="113.0" prefWidth="36.0" text="Kanał"/>
+                <Label fx:id="labelCanal" layoutX="62.0" layoutY="111.0" prefHeight="20.0" prefWidth="150.0"
+                       text="nrKanalu">
+                    <font>
+                        <Font size="14.0"/>
+                    </font>
+                </Label>
+                <Button fx:id="buttonKick" layoutX="20.0" layoutY="167.0" mnemonicParsing="false"
+                        text="Wyrzuć z serwera"/>
+                <Button fx:id="buttonBan" layoutX="153.0" layoutY="167.0" mnemonicParsing="false" text="Zbanuj"/>
+            </children>
+        </AnchorPane>
+    </children>
+</Pane>

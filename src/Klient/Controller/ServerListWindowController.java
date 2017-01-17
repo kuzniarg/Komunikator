@@ -64,8 +64,8 @@ public class ServerListWindowController {
             @Override
             public void handle(ActionEvent e) {
                 serverList.clear();
-                for (int i = 0; i < data.size(); i++) {
-                    serverList.add(data.get(i));
+                for (ServerElement aData : data) {
+                    serverList.add(aData);
                 }
             }
         });
@@ -74,18 +74,8 @@ public class ServerListWindowController {
             @Override
             public void handle(ActionEvent e) {
                 data.clear();
-                for (int i = 0; i < serverList.size(); i++) {
-                    data.add(serverList.get(i));
-                }
-            }
-        });
-
-        buttonPrzywroc.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent e) {
-                data.clear();
-                for (int i = 0; i < serverList.size(); i++) {
-                    data.add(serverList.get(i));
+                for (ServerElement aServerList : serverList) {
+                    data.add(aServerList);
                 }
             }
         });
@@ -161,8 +151,5 @@ public class ServerListWindowController {
 
         tableServers.setItems(data);
         tableServers.getColumns().addAll(nameColumn, IPColumn, portColumn);
-    }
-
-    private void saveServerList() {
     }
 }

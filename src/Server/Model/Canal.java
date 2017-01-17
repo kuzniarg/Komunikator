@@ -23,7 +23,7 @@ public class Canal {
         while (i < users.size() && !tmp.equals(users.get(i))) {
             i++;
         }
-        if (!users.isEmpty()) users.remove(i);
+        if (!users.isEmpty() && i < users.size()) users.remove(i);
     }
 
     public String getName() {
@@ -43,5 +43,22 @@ public class Canal {
 
     public String toStringWithoutUsers() {
         return name + ";" + power;
+    }
+
+    public boolean isUser(String id, String name) {
+        User tmp = new User(id, name);
+        int i = 0;
+        while (i < users.size() && !tmp.equals(users.get(i))) {
+            i++;
+        }
+        return !users.isEmpty() && i < users.size();
+    }
+
+    public ArrayList<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(ArrayList<User> users) {
+        this.users = users;
     }
 }

@@ -6,33 +6,26 @@
 <Pane prefHeight="624.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Server.Controller.ServerWindowController">
     <Label layoutX="10.0" layoutY="369.0" text="Dziennik serwera"/>
-    <Label layoutX="10.0" layoutY="31.0" text="Kanały i użytkownicy"/>
-    <AnchorPane layoutX="466.0" layoutY="48.0" minHeight="0.0" minWidth="0.0" prefHeight="137.0" prefWidth="160.0">
+    <Label layoutX="10.0" layoutY="14.0" text="Kanały i użytkownicy"/>
+    <AnchorPane layoutX="446.0" layoutY="23.0" minHeight="0.0" minWidth="0.0" prefHeight="95.0" prefWidth="169.0">
         <TextField fx:id="TextIP" disable="true" layoutX="2.0" layoutY="17.0" prefHeight="25.0" prefWidth="160.0"/>
         <Label layoutX="7.0" text="Adres IP serwera"/>
-        <TextField fx:id="TextPort" layoutY="59.0" prefHeight="25.0" prefWidth="160.0" text="1500"/>
+        <TextField fx:id="TextPort" layoutY="59.0" prefHeight="25.0" prefWidth="77.0" text="1500"/>
         <Label layoutX="8.0" layoutY="42.0" text="Port"/>
-        <Button fx:id="ButtonStart" layoutX="59.0" layoutY="106.0" mnemonicParsing="false" text="Start"/>
+        <Button fx:id="ButtonStart" layoutX="96.0" layoutY="56.0" mnemonicParsing="false" prefHeight="25.0"
+                prefWidth="66.0" text="Start"/>
+        <Separator layoutX="-4.0" layoutY="96.0" prefHeight="0.0" prefWidth="169.0"/>
     </AnchorPane>
     <TextArea fx:id="ServerLog" layoutX="10.0" layoutY="388.0" prefHeight="222.0" prefWidth="621.0"/>
-    <TreeView fx:id="TreeServer" layoutX="10.0" layoutY="48.0" prefHeight="302.0" prefWidth="438.0"/>
-    <MenuBar fx:id="menuSerwer" prefHeight="25.0" prefWidth="640.0">
-        <menus>
-            <Menu fx:id="menuUstawienia" mnemonicParsing="false" text="Ustawienia">
-                <items>
-                    <MenuItem mnemonicParsing="false" text="Close"/>
-                </items>
-            </Menu>
-            <Menu fx:id="menuWidok" mnemonicParsing="false" text="Widok">
-                <items>
-                    <MenuItem mnemonicParsing="false" text="Delete"/>
-                </items>
-            </Menu>
-            <Menu fx:id="menuPomoc" mnemonicParsing="false" text="Pomoc">
-                <items>
-                    <MenuItem mnemonicParsing="false" text="About"/>
-                </items>
-            </Menu>
-        </menus>
-    </MenuBar>
+    <TreeView fx:id="TreeServer" layoutX="10.0" layoutY="31.0" prefHeight="334.0" prefWidth="407.0"/>
+    <AnchorPane fx:id="settingsPane" layoutX="423.0" layoutY="125.0" prefHeight="240.0" prefWidth="208.0">
+        <children>
+            <CheckBox fx:id="checkBoxWiadomosci" layoutX="14.0" layoutY="14.0" mnemonicParsing="false"
+                      text="Pokaż wiadomości w dzienniku"/>
+            <CheckBox fx:id="checkBoxZmiany" layoutX="14.0" layoutY="37.0" mnemonicParsing="false"
+                      text="Zezwól na zmianę kanału"/>
+            <Button fx:id="buttonBazaUzyt" layoutX="45.0" layoutY="61.0" mnemonicParsing="false"
+                    text="Baza użytkowników"/>
+        </children>
+    </AnchorPane>
 </Pane>

@@ -32,24 +32,31 @@ class ClientThread extends Thread {
     private String publicKeyE;
     private SimpleDateFormat sdf;
     private TreeItem<String> user;
+    private boolean printMsg;
+    private boolean allowCanalChanging;
 
-    ClientThread(Socket socket, String clientID, ArrayList<ClientThread> clientList, TreeView<String> TreeServer, ArrayList<Canal> canalList) {
+    ClientThread(Socket socket, String clientID, ArrayList<ClientThread> clientList, TreeView<String> TreeServer,
+                 ArrayList<Canal> canalList, boolean printMsg, boolean allowCanalChanging) {
         this.clientID = clientID;
         this.socket = socket;
         this.canalList = canalList;
         this.TreeServer = TreeServer;
         this.clientList = clientList;
         this.clientPower = 0;
+        this.printMsg = printMsg;
+        this.allowCanalChanging = allowCanalChanging;
         try {
             sOutput = new ObjectOutputStream(socket.getOutputStream());
             sInput = new ObjectInputStream(socket.getInputStream());
             username = (String) sInput.readObject();
-            publicKeyN = (String) sInput.readObject();
-            publicKeyE = (String) sInput.readObject();
-            sdf = new SimpleDateFormat("HH:mm:ss");
-            display(username + " laczy sie z serwerem");
+            if (!username.equals("serwer")) {
+                publicKeyN = (String) sInput.readObject();
+                publicKeyE = (String) sInput.readObject();
+                sdf = new SimpleDateFormat("HH:mm:ss");
+                display(username + " laczy sie z serwerem");
+            }
         } catch (IOException e) {
-            display("Blad podczas tworzenia strumieni wejscia/wyjscia: " + e);
+            display("Blad podczas tworzenia strumieni wejscia/wyjscia");
         } catch (ClassNotFoundException ignored) {
         }
         user = new TreeItem<>(username);
@@ -59,8 +66,10 @@ class ClientThread extends Thread {
         Platform.runLater(new Runnable() {
             @Override
             public void run() {
-                String time = sdf.format(new Date()) + " " + msg + "\n";
-                System.out.print(time);
+                if (!username.equals("serwer")) {
+                    String time = sdf.format(new Date()) + " " + msg + "\n";
+                    System.out.print(time);
+                }
             }
         });
     }
@@ -74,7 +83,7 @@ class ClientThread extends Thread {
                 try {
                     cm = (ChatMessage) sInput.readObject();
                 } catch (IOException e) {
-                    display(username + " blad podczas odczytu ze strumienia: " + e);
+                    display(username + " blad podczas odczytu ze strumienia");
                     break;
                 } catch (ClassNotFoundException e2) {
                     break;
@@ -93,10 +102,18 @@ class ClientThread extends Thread {
                         int newCanal = findCanal(message);
                         if (newCanal == -1 || newCanal == canal)
                             break;
+                        if (!allowCanalChanging && newCanal != 0) {
+                            writeMsg(new ChatMessage(1, "Serwer zablokowal mozliwosc zmiany kanalu"));
+                            break;
+                        }
                         if (canalList.get(newCanal).getPower() <= clientPower)
                             changeCanal(newCanal);
                         else
                             writeMsg(new ChatMessage(1, "Odmowa dostepu do kanalu " + canalList.get(newCanal).getName()));
+                        break;
+                    case ChatMessage.KICK:
+                        display(username + " zostal wyrzucony z serwera");
+                        keepGoing = false;
                         break;
                 }
             }
@@ -106,6 +123,15 @@ class ClientThread extends Thread {
     }
 
     private boolean authorization() {
+        try {
+            ChatMessage cm = (ChatMessage) sInput.readObject();
+            if (cm.getMessage().equals("serverRefresh")) {
+                broadcastCanalsRefresh();
+                return false;
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         RSA rsa = new RSA(new BigInteger(publicKeyN), new BigInteger(publicKeyE));
         SecureRandom random = new SecureRandom();
         String code = new BigInteger(130, random).toString(32);
@@ -143,7 +169,8 @@ class ClientThread extends Thread {
     private synchronized void removeClient() {
         TreeServer.getRoot().getChildren().get(canal).getChildren().remove(user);
         canalList.get(canal).removeUser(clientID, username);
-        broadcast("opuscil kanal " + canalList.get(canal).getName());
+        if (!this.username.equals("serwer"))
+            broadcast("opuscil kanal " + canalList.get(canal).getName());
         this.canal = -1;
         broadcastCanals();
     }
@@ -164,6 +191,27 @@ class ClientThread extends Thread {
         }
     }
 
+    private synchronized void broadcastCanalsRefresh() {
+        for (int index = 0; index < canalList.size(); index++) {
+            ArrayList<User> list = canalList.get(index).getUsers();
+            for (int index2 = 0; index2 < list.size(); index2++) {
+                int index3 = 0;
+                while (!clientList.get(index3).getUsername().equals(canalList.get(index).getUsers().get(index2).getName())
+                        || !clientList.get(index3).getClientID().equals(canalList.get(index).getUsers().get(index2).getID()))
+                    index3++;
+                clientList.get(index3).setCanal(index);
+            }
+        }
+        String canalCode = canalList.toString();
+        for (int i = clientList.size() - 1; --i >= 0; ) {
+            ClientThread ct = clientList.get(i);
+            if (!ct.writeMsg(new ChatMessage(ChatMessage.CANALS, canalCode))) {
+                clientList.remove(i);
+                display("Nieaktywny klient " + ct.username + " usunity z listy.");
+            }
+        }
+    }
+
     private void close() {
         try {
             if (sOutput != null) sOutput.close();
@@ -174,7 +222,7 @@ class ClientThread extends Thread {
         display(username + " opuscil serwer");
     }
 
-    private boolean writeMsg(ChatMessage msg) {
+    boolean writeMsg(ChatMessage msg) {
         if (!socket.isConnected()) {
             close();
             return false;
@@ -190,7 +238,8 @@ class ClientThread extends Thread {
     private synchronized void broadcast(String msg) {
         String time = sdf.format(new Date());
         String message = time + " " + username + ": " + msg;
-        System.out.println(message);
+        if (printMsg)
+            System.out.println(message);
 
         for (int i = clientList.size(); --i >= 0; ) {
             if (clientList.get(i).getCanal() == canal) {
@@ -215,7 +264,11 @@ class ClientThread extends Thread {
     }
 
     public String getPublicKey() {
-        return publicKeyE;
+        return publicKeyN;
+    }
+
+    public int getClientPower() {
+        return clientPower;
     }
 
     public void setClientPower(int clientPower) {
@@ -224,5 +277,35 @@ class ClientThread extends Thread {
 
     public int getCanal() {
         return canal;
+    }
+
+    public void setPrintMsg(boolean printMsg) {
+        this.printMsg = printMsg;
+    }
+
+    public void setAllowCanalChanging(boolean allowCanalChanging) {
+        this.allowCanalChanging = allowCanalChanging;
+    }
+
+    public String getClientID() {
+        return clientID;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setCanal(int canal) {
+        this.canal = canal;
+    }
+
+    public void banned() {
+        try {
+            ChatMessage cm = (ChatMessage) sInput.readObject();
+            sOutput.writeObject(new ChatMessage(ChatMessage.KICK, ""));
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        display(username + " jest zbanowany - odrzucono probe polaczenia");
     }
 }

@@ -61,7 +61,7 @@ public class LoginController {
         rsa = new RSA(1024);
         loadSettings();
         PrintStream printStream = new PrintStream(new CustomOutputStream(ClientLog));
-        //System.setOut(printStream);
+        System.setOut(printStream);
         //System.setErr(printStream);
     }
 

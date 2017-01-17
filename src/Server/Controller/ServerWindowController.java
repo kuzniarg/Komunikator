@@ -4,14 +4,22 @@ import Server.Model.Canal;
 import Server.Model.CustomOutputStream;
 import Server.Model.Server;
 import Server.Model.UserKey;
+import Server.ServerMain;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,11 +40,11 @@ public class ServerWindowController {
     @FXML
     private TreeView<String> TreeServer;
     @FXML
-    private Menu menuUstawienia;
+    private Button buttonBazaUzyt;
     @FXML
-    private Menu menuWidok;
+    private CheckBox checkBoxZmiany;
     @FXML
-    private Menu menuPomoc;
+    private CheckBox checkBoxWiadomosci;
 
     private SimpleDateFormat sdf;
     private boolean startClick = true;
@@ -44,6 +52,8 @@ public class ServerWindowController {
     private ArrayList<Canal> canalList;
     private ArrayList<UserKey> userList;
     private String settings;
+    private boolean printMsg = false;
+    private boolean allowCanalChanging = false;
 
     public void run(Stage stage) {
         ini(stage);
@@ -75,19 +85,21 @@ public class ServerWindowController {
                 printLog("Zły format portu");
                 return;
             }
-            server = new Server(port, TreeServer, canalList, userList);
+            server = new Server(port, TreeServer, canalList, userList, printMsg, allowCanalChanging);
             Thread serverThread = new Thread(server);
             serverThread.start();
             printLog("Start serwera");
 
             ButtonStart.setText("Stop");
             startClick = false;
+            TextPort.setDisable(true);
         } else {
             ButtonStart.setText("Start");
             startClick = true;
 
             server.stopServer();
             printLog("Zatrzymanie serwera");
+            TextPort.setDisable(false);
         }
 
     }
@@ -102,6 +114,22 @@ public class ServerWindowController {
             }
         });
 
+        TreeServer.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton() == MouseButton.SECONDARY) {
+                    TreeItem<String> item = TreeServer.getSelectionModel().getSelectedItem();
+                    if (item.getValue().equals("Serwer"))
+                        openNewCanalWindow();
+                    else if (item.getParent().getValue().equals("Serwer")) {
+                        int index = 0;
+                        while (!canalList.get(index++).getName().equals(item.getValue())) ;
+                        openEditCanalWindow(--index);
+                    } else openUserWindow(item.getParent().getValue(), item.getValue());
+                }
+            }
+        });
+
         ButtonStart.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -109,7 +137,128 @@ public class ServerWindowController {
             }
         });
 
+        checkBoxWiadomosci.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                printMsg = checkBoxWiadomosci.isSelected();
+                if (server != null)
+                    server.setPrintMsg(printMsg);
+            }
+        });
+
+        checkBoxZmiany.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                allowCanalChanging = checkBoxZmiany.isSelected();
+                if (server != null)
+                    server.setAllowCanalChanging(allowCanalChanging);
+            }
+        });
+
+        buttonBazaUzyt.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                openUserListWindow(event);
+            }
+        });
+
         this.ServerLog.setWrapText(true);
+    }
+
+    private void openUserListWindow(ActionEvent e) {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(ServerMain.class.getResource("View/UserListWindow.fxml"));
+            Pane serverListWindow = loader.load();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(serverListWindow));
+            stage.setTitle("Lista zapamietanych uzytkownikow");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setResizable(false);
+            stage.show();
+
+            UserListWindowController controller = loader.getController();
+            controller.iniWindow(userList);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private void openNewCanalWindow() {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(ServerMain.class.getResource("View/NewCanalWindow.fxml"));
+            Pane newCanalWindow = loader.load();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(newCanalWindow));
+            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                public void handle(WindowEvent event) {
+                }
+            });
+            stage.setTitle("Dodaj nowy kanał");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setResizable(false);
+            stage.show();
+
+            NewCanalWindowController controller = loader.getController();
+            controller.iniWindow(canalList, TreeServer, Integer.parseInt(TextPort.getText()));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private void openEditCanalWindow(int canalNumber) {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(ServerMain.class.getResource("View/EditCanalWindow.fxml"));
+            Pane editCanalWindow = loader.load();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(editCanalWindow));
+            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                public void handle(WindowEvent event) {
+                }
+            });
+            stage.setTitle("Edytuj kanał");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setResizable(false);
+            stage.show();
+
+            EditCanalWindowController controller = loader.getController();
+            controller.iniWindow(canalList, TreeServer, canalNumber, Integer.parseInt(TextPort.getText()));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private void openUserWindow(String canalName, String username) {
+        try {
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(ServerMain.class.getResource("View/UserWindow.fxml"));
+            Pane userWindow = loader.load();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(userWindow));
+            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+                public void handle(WindowEvent event) {
+                }
+            });
+            stage.setTitle("Edytuj użytkownika");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setResizable(false);
+            stage.show();
+
+            UserWindowController controller = loader.getController();
+            int i = 0;
+            while (!canalList.get(i).getName().equals(canalName))
+                i++;
+            UserKey user = server.getUser(username, i);
+            controller.iniWindow(userList, user, canalName, Integer.parseInt(TextPort.getText()), server);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
     }
 
     private void loadSettings() {
@@ -124,6 +273,7 @@ public class ServerWindowController {
                 "Prywatny 3;7\n" +
                 "###\n" +
                 "#Users\n" +
+                "0;0\n" +
                 "###\n" +
                 "#END";
 
@@ -134,9 +284,11 @@ public class ServerWindowController {
         String section = getNextSection();
         if (!section.equals(""))
             loadCanals(section);
+        else canalList.add(new Canal("Poczekalnia", 0));
         section = getNextSection();
         if (!section.equals(""))
             loadUsers(section);
+        else userList.add(new UserKey("0", "0", "0"));
     }
 
     private String getNextSection() {
@@ -196,7 +348,7 @@ public class ServerWindowController {
             int index = section.indexOf(';');
             String publicKey = section.substring(0, index);
             int index2 = section.indexOf('\n');
-            int power = Integer.parseInt(section.substring(index + 1, index2));
+            String power = section.substring(index + 1, index2);
             userList.add(new UserKey(publicKey, power));
             section = section.substring(index2 + 1);
             if (index2 >= section.length()) break;
@@ -221,6 +373,10 @@ public class ServerWindowController {
 
         File config = new File("./server.conf");
         saveFile(config.getPath(), dataToSave);
+    }
+
+    public void saveUserList() {
+
     }
 
 }

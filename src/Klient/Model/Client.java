@@ -30,7 +30,7 @@ public class Client {
         try {
             socket = new Socket(server, port);
         } catch (Exception ec) {
-            display("Blad laczenia z serwerem: " + ec);
+            display("Blad laczenia z serwerem");
             return false;
         }
 
@@ -40,7 +40,7 @@ public class Client {
             sInput = new ObjectInputStream(socket.getInputStream());
             sOutput = new ObjectOutputStream(socket.getOutputStream());
         } catch (IOException eIO) {
-            display("Blad podczas tworzenia strumieni wejscia/wyjscia: " + eIO);
+            display("Blad podczas tworzenia strumieni wejscia/wyjscia");
             return false;
         }
 
@@ -49,13 +49,18 @@ public class Client {
             sOutput.writeObject(rsa.getN().toString());
             sOutput.writeObject(rsa.getE().toString());
         } catch (IOException eIO) {
-            display("Blad podczas logowania: " + eIO);
+            display("Blad podczas logowania");
             disconnect();
             return false;
         }
 
         try {
+            sOutput.writeObject(new ChatMessage(ChatMessage.AUTHORIZATION, "start"));
             ChatMessage cm = (ChatMessage) sInput.readObject();
+            if (cm.getType() == ChatMessage.KICK) {
+                display("Twoj klient zostal zbanowany na serwerze, z ktorym probujesz sie polaczyc");
+                return false;
+            }
             String answer = rsa.decrypt(cm.getMessage());
             sOutput.writeObject(new ChatMessage(ChatMessage.AUTHORIZATION, answer));
             cm = (ChatMessage) sInput.readObject();
@@ -63,7 +68,7 @@ public class Client {
                 display("Blad autoryzacji");
                 return false;
             } else {
-                LFS = new ListenFromServer(sInput, TreeClient);
+                LFS = new ListenFromServer(sInput, TreeClient, this);
                 LFS.start();
                 return true;
             }
@@ -82,12 +87,13 @@ public class Client {
         try {
             sOutput.writeObject(msg);
         } catch (IOException e) {
-            display("Blad podczas wysylania wiadomosci: " + e);
+            display("Blad podczas wysylania wiadomosci");
         }
     }
 
     public void disconnect() {
-        sendMessage(new ChatMessage(ChatMessage.LOGOUT, ""));
+        if (sOutput != null)
+            sendMessage(new ChatMessage(ChatMessage.LOGOUT, ""));
         try {
             if (sInput != null) sInput.close();
             if (sOutput != null) sOutput.close();
